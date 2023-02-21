@@ -7,6 +7,7 @@ const HeatmapSchema = new mongoose.Schema({
   mode: String,
   type: String,
   metric: String,
+  agg_method: String,
 });
 
 const heatmap = mongoose.model("Heatmap", HeatmapSchema, "Heatmaps");

@@ -77,6 +77,7 @@ export default function HeatmapMaker({
     let heatmapRequest = {
       pdb_id: protein.pdb_id,
       metric: metric,
+      agg_method: "avg", //Currently hard coded
       mode: undefined,
       type: undefined,
       index: undefined, //Only used if type is "resxres"
@@ -107,13 +108,13 @@ export default function HeatmapMaker({
 
     const fetchHeatmap = async () => {
       setLoading(true);
-      //console.log("Heatmap request: ");
-      //console.log(heatmapRequest);
+      console.log("Heatmap request: ");
+      console.log(heatmapRequest);
       const DBHeatmapData = await axios
         .post("/api/heatmap/get-heatmap", heatmapRequest)
         .then((resp) => {
-          //console.log("Response: ");
-          //console.log(resp);
+          console.log("Response: ");
+          console.log(resp);
           setData(constructData(resp.data.heatmap));
           setLoading(false);
         })
@@ -127,7 +128,7 @@ export default function HeatmapMaker({
   //Constructs data from what the proper labels for each axis is, and the heat data inside of protein.
   let constructData = (heatmap) => {
     let data = [];
-
+    console.log(heatmap);
     if (!heatmap) {
       console.log("Heatmap is null");
       return null;
@@ -136,13 +137,26 @@ export default function HeatmapMaker({
     for (let i = 0; i < xAxisCount; i++) {
       let column = { key: xAxis[i], data: [] };
       for (let j = 0; j < yAxisCount; j++) {
-        let heat = heatmap[j][i];
+
+        //Single delete is treated differently because it is stored as a single array in the DB,
+        //as opposed to a 2d array. Not ideal because it means we need to give it a special case in the code.
+        //However, I didn't want to ask Jason to reformat the data AGAIN after asking him to do a bunch
+        //of other things.
+        let heat;
+        if (mode === "delete" && protein.type === "single"){
+          heat = heatmap[i];
+        }
+        else{
+          heat = heatmap[j][i];
+        }
+        
         let square = { key: yAxis[j], data: heat };
 
         //Heat is null (shows as a black square) if there is no heatmap data for the square, or
         //if the indices are the same on a pairwise indel index x index heatmap.
         if (isNaN(heat) || (protein.type === "pairwise" && stage === "index" && i === j)) {
           square.data = null;
+          console.log("square is null: " + heat);
         }
         column.data.push(square);
       }
