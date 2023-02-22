@@ -168,7 +168,7 @@ export default function HeatmapMaker({
   let squareClicked = (square) => {
     let column = square.value.key;
     let row = square.value.x;
-    setMetricValue(square.value.value);
+    //setMetricValue(square.value.value);
     // X axis defaults to first text field, Y axis defaults to second
     if (protein.type === "single") {
       handleIndexChange(column);
@@ -205,7 +205,7 @@ export default function HeatmapMaker({
         xAxisCount = heatMapSize;
         yAxisCount = residues.length;
       } else {
-        //heatMapSize += 1;
+        heatMapSize += 1;
         if (stage === "index") {
           // Generate heatmap with insert index on both axes
           xAxis = Array(heatMapSize)

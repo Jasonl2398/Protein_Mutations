@@ -131,11 +131,13 @@ function ProteinSelector({ protein }) {
     let upperLimit = protein.residue_count;
     if (protein.type != "single") {
       if (mode === "insert") {
-        upperLimit += 1;
-      } else {
-        upperLimit -= 1;
+        upperLimit += 2;
       }
     }
+    else{
+      upperLimit += 1;
+    }
+    console.log("up lim: " + upperLimit);
     return index >= 1 && index <= upperLimit;
   };
   // Confirm navigation to next stage, locks in index/residue
