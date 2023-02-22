@@ -1,5 +1,4 @@
-# FOR SINGLE INSERTIONS ONLY !!
-
+#!/usr/bin/env python3
 import os
 import pdb #python debugger
 from collections import defaultdict
@@ -25,54 +24,28 @@ def get_residue_count(pdb_id):
         return len((full_struct[0]))
 
 def get_wild_type(pdb_id):
-    file = open(pdb_id + '_Single' +'\\wild_type.json')
+    file = open(pdb_id + '\\wild_type.json')
     wild_data = json.load(file)
     file.close()
     return wild_data
 
 
-#for SINGLE insertions
-'''
-def load_mutants(pdb_id, pos1, pos2, res_name):
+#for insertions
+def load_mutants(pdb_id,pos1,pos2,mut_first,mut_second):
 
     mut_data = []
-    json_dir = pdb_id +'_Single'+ '\\results\\ins\\' + str(pos1) + '\\'
-
+    json_dir = pdb_id + '\\results\\ins\\' + str(10) + '\\' + mut_first + '\\' + str(18) + '\\'
     #print('json dir: ' + json_dir)
     print("pos1: " + str(pos1))
     print("pos2: " + str(pos2))
-    try:
-        file = open(json_dir+res_name)
-        print(json_dir+res_name)
-        mut_data.append(json.load(file))
+    try:       
+        file = open(json_dir + mut_second + '.json')
+        mut_data.append(json.load(file)) 
+        print(json_dir + mut_second + '.json')
     except Exception as e:
-        print('SKIPPED: '+json_dir+res_name) 
-    return mut_data
-'''
-
-#for SINGLE deletions
-def load_mutants(pdb_id, pos1, pos2, res_name):
-
-    mut_data = []
-    json_dir = pdb_id +'_Single'+ '\\results\\del\\' + str(pos2) + '.json'
-
-    #print('json dir: ' + json_dir)
-    print("pos1: " + str(pos1))
-    print("pos2: " + str(pos2))
-    try:
-        file = open(json_dir)
-        print(json_dir)
-        mut_data.append(json.load(file))
-    except Exception as e:
-        print('SKIPPED: '+json_dir) 
+        print('SKIPPED: '+json_dir + mut_second + '.json') 
     return mut_data
 
-# remove '.json' from a list of filenames
-def trim_file_string(name_list):
-    new_list = []
-    for name_index in range(len(name_list)):
-        new_list.append(name_list[name_index].replace('.json',''))
-    return new_list
 
 def get_name_list(dir):
     #dir = pdb_id + '\\results\\ins\\' + str(1) + '\\'
@@ -80,15 +53,13 @@ def get_name_list(dir):
     return name_list
 
 def iterate_cells(rescount):
-    file_dir = pdb_id +'_Single'+ '\\results\\ins\\' + str(1) + '\\' 
+    file_dir = pdb_id + '\\results\\ins\\' + str(1) + '\\' 
     name_list = get_name_list(file_dir)
-    #print(name_list)
-    for pos1 in range(1):
+    for pos1 in range(rescount):
         for pos2 in range(rescount):
-            # load all mutants for this position
-            mutants = load_mutants(pdb_id,pos1,pos2,name_list[pos2])
+            # load all mutants for this position  
+            mutants = load_mutants(pdb_id,pos1,pos2,name_list[pos1],name_list[pos2])
             yield (pos1, pos2, mutants)
-
 
 # need to modify to create residue x residue plots for 
 def update_data(pos1, pos2, mut_types, wild_type, data):
@@ -102,16 +73,26 @@ def update_data(pos1, pos2, mut_types, wild_type, data):
 
     hbond_count_ratio = [mut['hbond_count'] / wild_type['hbond_count'] for mut in mut_types] # mut_types should be an array of json files(?)
     update_cell(data['hbond_count_ratio']['avg'], pos1, pos2, np.mean(hbond_count_ratio))
+    '''
     update_cell(data['hbond_count_ratio']['std'], pos1, pos2, np.std(hbond_count_ratio))
     update_cell(data['hbond_count_ratio']['1sd_outlier'], pos1, pos2, count_outliers(hbond_count_ratio, 1))
     update_cell(data['hbond_count_ratio']['3sd_outlier'], pos1, pos2, count_outliers(hbond_count_ratio, 3))
-
+    '''
     lrc_dist = [wild_type['kinari_metrics']['size of largest Clust'] - mut['kinari_metrics']['size of largest Clust'] for mut in mut_types]
 
     update_cell(data['lrc_dist']['avg'], pos1, pos2, np.mean(lrc_dist))
+    '''
     update_cell(data['lrc_dist']['std'], pos1, pos2, np.std(lrc_dist))
     update_cell(data['lrc_dist']['1sd_outlier'], pos1, pos2, count_outliers(lrc_dist, 1))
     update_cell(data['lrc_dist']['3sd_outlier'], pos1, pos2, count_outliers(lrc_dist, 3))
+    '''
+    clust_config_entropy_diffs = [mut['kinari_metrics']['Cluster configuration entropy'] - wild_type['kinari_metrics']['Cluster configuration entropy'] for mut in mut_types]
+    update_cell(data['cce_difference']['avg'], pos1, pos2, np.mean(clust_config_entropy_diffs))
+    '''
+    update_cell(data['cce_difference']['std'], pos1, pos2, np.std(clust_config_entropy_diffs))
+    update_cell(data['cce_difference']['1st_outlier'], pos1, pos2, count_outliers(clust_config_entropy_diffs,1))
+    update_cell(data['cce_difference']['3sd_outlier'], pos1, pos2, count_outliers(clust_config_entropy_diffs,3))
+    '''
 
     update_cell(data['mutation']['count'], pos1, pos2, len(mut_types))
 
@@ -153,9 +134,11 @@ def update_data(pos1, pos2, mut_types, wild_type, data):
         rigid_cluster_count_diffs.append(cluster_diff)
     
     update_cell(data['rcbd']['avg'], pos1, pos2, np.mean(rigid_cluster_count_diffs))
+    '''
     update_cell(data['rcbd']['std'], pos1, pos2, np.std(rigid_cluster_count_diffs))
     update_cell(data['rcbd']['1sd_outlier'], pos1, pos2, count_outliers(rigid_cluster_count_diffs, 1))
     update_cell(data['rcbd']['3sd_outlier'], pos1, pos2, count_outliers(rigid_cluster_count_diffs, 3))
+    '''
 
 def create_heatmap(data, pdb_id, arr_count, name, name_list):
     
@@ -163,38 +146,35 @@ def create_heatmap(data, pdb_id, arr_count, name, name_list):
     plt.title(f"{pdb_id}_{name}")
     
     # dump raw heatmap data for future generation
-    #need to dump these in separate folders
-    dump_dir = '1l2y_SingleDelArr_ind\\'# directory for where the heatmap arrays are dumped
-    dictionary = {
+    dump_dir = '1l2y_PairInsArr_resxres\\'# directory for where the heatmap arrays are dumped
+    tuple = {
         "heatmap": data.tolist(),
         "pdb_id" : pdb_id,
-        "mode" : "del",
-        "type" : "ind",
-        "metric" : metric
+        "index" : [10,18],
+        "mode" : "ins",
+        "type" : "resxres",
+        "metric" : metric,
+        "agg_method" : agg_method
     }
-    arr_convert = [dictionary]
-    array_dump = json.dumps(arr_convert,indent=4)
-    with (open(dump_dir + pdb_id + '_' + name + '_arr.json','w')) as f:
+
+    array_dump = json.dumps(tuple,indent=4)
+    with (open(dump_dir + pdb_id + '_' + name + '_10_18_arr.json','w')) as f:
         f.write(array_dump)
-    
     
     
     mask = np.zeros_like(data)
     ax = sns.heatmap(data, mask=mask, cmap='hot', cbar_kws={'label': name})
 
     ax.invert_yaxis()
-    #print(data.shape)
-    #print(data[1])
-    ax.set_xlim(1)
-    ax.set_ylim(0,data.shape[0])
-    #ax.set_yticklabels(name_list)
+    ax.set_xticklabels(name_list)
+    ax.set_yticklabels(name_list)
 
     ax.set_facecolor("black") # fill in masked cells with black
 
-    ax.set_xlabel("Deletion index")
-    ax.set_ylabel("Measured change")
+    ax.set_xlabel("Residue")
+    ax.set_ylabel("Residue")
 
-    plt.savefig(f"metrics_single_del/{pdb_id}_{name}.png")
+    plt.savefig(f"metrics_resxres/{pdb_id}_{name}.png")
 
 # driver code
 if __name__ == '__main__':
@@ -208,12 +188,9 @@ if __name__ == '__main__':
     rescount = get_residue_count(pdb_id)
 
     print("Fetching residue names")
-    dir = pdb_id +'_Single'+'\\results\\ins\\1\\'
-    name_list = trim_file_string(get_name_list(dir))
-
-    heatmap_data = defaultdict(lambda: defaultdict(lambda: np.zeros(shape=(1,rescount)))) 
-    #print('PRINTING HEATMAP DATA (TESTING PURPOSES): ')
-    #print(heatmap_data)
+    dir = pdb_id + '\\results\\ins\\1\\'
+    name_list = get_name_list(dir)
+    heatmap_data = defaultdict(lambda: defaultdict(lambda: np.zeros(shape=(rescount,rescount)))) 
 
     print("Building data")
     '''
