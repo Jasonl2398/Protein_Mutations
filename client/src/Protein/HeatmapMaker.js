@@ -108,13 +108,13 @@ export default function HeatmapMaker({
 
     const fetchHeatmap = async () => {
       setLoading(true);
-      console.log("Heatmap request: ");
-      console.log(heatmapRequest);
+      //console.log("Heatmap request: ");
+      //console.log(heatmapRequest);
       const DBHeatmapData = await axios
         .post("/api/heatmap/get-heatmap", heatmapRequest)
         .then((resp) => {
-          console.log("Response: ");
-          console.log(resp);
+          //console.log("Response: ");
+          //console.log(resp);
           setData(constructData(resp.data.heatmap));
           setLoading(false);
         })
@@ -128,7 +128,6 @@ export default function HeatmapMaker({
   //Constructs data from what the proper labels for each axis is, and the heat data inside of protein.
   let constructData = (heatmap) => {
     let data = [];
-    console.log(heatmap);
     if (!heatmap) {
       console.log("Heatmap is null");
       return null;
@@ -156,7 +155,6 @@ export default function HeatmapMaker({
         //if the indices are the same on a pairwise indel index x index heatmap.
         if (isNaN(heat) || (protein.type === "pairwise" && stage === "index" && i === j)) {
           square.data = null;
-          console.log("square is null: " + heat);
         }
         column.data.push(square);
       }
