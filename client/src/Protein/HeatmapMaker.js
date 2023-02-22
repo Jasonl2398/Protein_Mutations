@@ -110,7 +110,7 @@ export default function HeatmapMaker({
       setLoading(true);
       //console.log("Heatmap request: ");
       //console.log(heatmapRequest);
-      const DBHeatmapData = await axios
+      await axios
         .post("/api/heatmap/get-heatmap", heatmapRequest)
         .then((resp) => {
           //console.log("Response: ");
@@ -120,6 +120,7 @@ export default function HeatmapMaker({
         })
         .catch((error) => {
           console.log(error);
+          setLoading(false);
         });
     };
     fetchHeatmap();
@@ -136,19 +137,17 @@ export default function HeatmapMaker({
     for (let i = 0; i < xAxisCount; i++) {
       let column = { key: xAxis[i], data: [] };
       for (let j = 0; j < yAxisCount; j++) {
-
         //Single delete is treated differently because it is stored as a single array in the DB,
         //as opposed to a 2d array. Not ideal because it means we need to give it a special case in the code.
         //However, I didn't want to ask Jason to reformat the data AGAIN after asking him to do a bunch
         //of other things.
         let heat;
-        if (mode === "delete" && protein.type === "single"){
+        if (mode === "delete" && protein.type === "single") {
           heat = heatmap[i];
-        }
-        else{
+        } else {
           heat = heatmap[j][i];
         }
-        
+
         let square = { key: yAxis[j], data: heat };
 
         //Heat is null (shows as a black square) if there is no heatmap data for the square, or
