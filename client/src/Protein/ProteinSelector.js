@@ -133,8 +133,7 @@ function ProteinSelector({ protein }) {
       if (mode === "insert") {
         upperLimit += 2;
       }
-    }
-    else{
+    } else {
       upperLimit += 1;
     }
     console.log("up lim: " + upperLimit);

@@ -23,7 +23,12 @@ export default function ResidueSelector({
   setMetricValue,
 }) {
   return (
-    <Dialog fullScreen open={open} onClose={handleClose} TransitionComponent={Transition}>
+    <Dialog
+      fullScreen
+      open={open}
+      onClose={handleClose}
+      TransitionComponent={Transition}
+      TransitionProps={{ unmountOnExit: true }}>
       <AppBar position="relative">
         <Toolbar>
           <IconButton edge="start" color="inherit" onClick={handleClose} aria-label="close">
